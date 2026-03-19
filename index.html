@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agenda de Sesiones — Educación Especial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,800;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f5f2ec;
+      --surface: #ffffff;
+      --surface2: #edeae3;
+      --ink: #1a1816;
+      --ink2: #6b6660;
+      --accent: #3d6b52;
+      --accent-light: #d4e8db;
+      --accent2: #b85c30;
+      --border: #ddd9d2;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(0,0,0,0.07);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--ink);
+      color: #f5f2ec;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    header h1 span { color: #8bc4a0; font-style: italic; }
+    .header-sub { font-size: 0.78rem; color: #aaa8a4; margin-top: 2px; }
+
+    /* ── NAV TABS ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      gap: 0;
+    }
+    nav button {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 1rem 1.4rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--ink2);
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    nav button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    nav button:hover { color: var(--ink); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── SECTION TITLE ── */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .55rem 1.1rem;
+      border-radius: 8px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-secondary { background: var(--surface2); color: var(--ink); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger { background: #fde8e0; color: var(--accent2); }
+    .btn-danger:hover { background: #f8d0c0; }
+    .btn-ghost { background: none; border: 1.5px solid var(--border); color: var(--ink2); }
+    .btn-ghost:hover { border-color: var(--ink2); color: var(--ink); }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    /* ── FORM MODAL ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+      animation: popIn .2s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(.94); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .modal h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--ink2);
+      margin-bottom: .35rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: .6rem;
+      margin-top: 1.5rem;
+    }
+
+    /* ── STUDENT LIST ── */
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .student-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.2rem 1.4rem;
+      transition: box-shadow .2s;
+    }
+    .student-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+    .student-name {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: .3rem;
+    }
+    .student-detail {
+      font-size: .8rem;
+      color: var(--ink2);
+      line-height: 1.6;
+    }
+    .student-actions { display: flex; gap: .5rem; margin-top: .9rem; }
+    .badge {
+      display: inline-block;
+      padding: .2rem .6rem;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 500;
+    }
+    .badge-green { background: var(--accent-light); color: var(--accent); }
+    .badge-orange { background: #fde8d8; color: #b85c30; }
+    .empty-state {
+      text-align: center;
+      padding: 3.5rem 2rem;
+      color: var(--ink2);
+    }
+    .empty-state .big-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: .9rem; }
+
+    /* ── AGENDA SEMANAL ── */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .week-label {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      min-width: 200px;
+      text-align: center;
+    }
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: .75rem;
+    }
+    @media (max-width: 700px) {
+      .week-grid { grid-template-columns: 1fr; }
+    }
+    .day-col {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .day-header {
+      background: var(--ink);
+      color: #f5f2ec;
+      padding: .6rem .9rem;
+      font-size: .8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .day-header.today { background: var(--accent); }
+    .day-slots { padding: .5rem; min-height: 80px; }
+    .slot {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: .45rem .7rem;
+      margin-bottom: .45rem;
+      font-size: .78rem;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .slot:hover { background: #c0dccb; }
+    .slot .slot-time { font-weight: 600; color: var(--accent); }
+    .slot .slot-name { color: var(--ink); }
+    .slot .slot-loc { color: var(--ink2); font-size: .72rem; }
+    .slot-actions { display:flex; gap:.4rem; margin-top:.5rem; }
+    .btn-wa {
+      display:inline-flex; align-items:center; gap:.3rem;
+      background:#25D366; color:#fff;
+      border:none; border-radius:5px;
+      padding:.25rem .6rem; font-size:.72rem; font-weight:500;
+      cursor:pointer; transition:opacity .15s;
+    }
+    .btn-wa:hover { opacity:.85; }
+    .btn-del-slot {
+      display:inline-flex; align-items:center;
+      background:#fde8e0; color:#b85c30;
+      border:none; border-radius:5px;
+      padding:.25rem .6rem; font-size:.72rem; font-weight:500;
+      cursor:pointer; transition:opacity .15s;
+    }
+    .btn-del-slot:hover { background:#f8d0c0; }
+
+    /* ── DISPONIBILIDAD ── */
+    .avail-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: .75rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 700px) { .avail-grid { grid-template-columns: 1fr 1fr; } }
+    .avail-day {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .avail-day-header {
+      background: var(--surface2);
+      padding: .55rem .9rem;
+      font-size: .78rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--ink2);
+    }
+    .avail-body { padding: .6rem; }
+    .avail-slot {
+      padding: .35rem .7rem;
+      border-radius: 6px;
+      margin-bottom: .35rem;
+      font-size: .78rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .avail-slot.free { background: var(--accent-light); color: var(--accent); }
+    .avail-slot.busy { background: #fde8d8; color: #b85c30; }
+    .summary-bar {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.2rem 1.6rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .summary-item { }
+    .summary-num {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .summary-label { font-size: .78rem; color: var(--ink2); margin-top: .2rem; }
+
+    /* ── PRINT ── */
+    @media print {
+      header, nav, .section-header .btn, .week-nav .btn, .no-print { display: none !important; }
+      body { background: white; }
+      .week-grid { grid-template-columns: repeat(5,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Agenda <span>de Sesiones</span></h1>
+    <div class="header-sub">Educación Especial — Gestión de turnos</div>
+  </div>
+  <button class="btn btn-ghost" style="color:#f5f2ec;border-color:#555;font-size:.82rem" onclick="openConfig()">⚙️ Mi perfil profesional</button>
+</header>
+
+<nav>
+  <button class="active" onclick="switchTab('estudiantes')">👤 Estudiantes</button>
+  <button onclick="switchTab('agenda')">📅 Agenda Semanal</button>
+  <button onclick="switchTab('disponibilidad')">🕐 Disponibilidad</button>
+</nav>
+
+<main>
+
+  <!-- ════════════ PANEL: ESTUDIANTES ════════════ -->
+  <div id="panel-estudiantes" class="panel active">
+    <div class="section-header">
+      <h2 class="section-title">Mis Estudiantes</h2>
+      <button class="btn btn-primary" onclick="openModal('add')">＋ Agregar estudiante</button>
+    </div>
+    <div id="student-grid" class="student-grid"></div>
+  </div>
+
+  <!-- ════════════ PANEL: AGENDA ════════════ -->
+  <div id="panel-agenda" class="panel">
+    <div class="section-header">
+      <h2 class="section-title">Agenda Semanal</h2>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="openModal('turno')">＋ Nuevo turno</button>
+        <button class="btn btn-ghost no-print" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+    <div class="week-nav">
+      <button class="btn btn-secondary" onclick="changeWeek(-1)">← Anterior</button>
+      <span class="week-label" id="week-label"></span>
+      <button class="btn btn-secondary" onclick="changeWeek(1)">Siguiente →</button>
+      <button class="btn btn-ghost" onclick="goToday()">Hoy</button>
+    </div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+
+  <!-- ════════════ PANEL: DISPONIBILIDAD ════════════ -->
+  <div id="panel-disponibilidad" class="panel">
+    <div class="section-header">
+      <h2 class="section-title">Disponibilidad Semanal</h2>
+    </div>
+    <div class="summary-bar" style="margin-bottom:1.5rem;" id="summary-bar"></div>
+    <div class="avail-grid" id="avail-grid"></div>
+  </div>
+
+</main>
+
+<!-- ════════════ MODAL: ESTUDIANTE ════════════ -->
+<div class="modal-backdrop" id="modal-estudiante">
+  <div class="modal">
+    <h2 id="modal-estudiante-title">Agregar Estudiante</h2>
+    <div class="form-group">
+      <label>Nombre completo *</label>
+      <input type="text" id="f-nombre" placeholder="Ej: Ramiro González"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Edad</label>
+        <input type="number" id="f-edad" min="1" max="30" placeholder="Años"/>
+      </div>
+      <div class="form-group">
+        <label>Modalidad</label>
+        <select id="f-modalidad">
+          <option value="">Seleccionar</option>
+          <option>Consultorio</option>
+          <option>Escuela (itinerancia)</option>
+          <option>Domicilio</option>
+          <option>Virtual</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Institución / Escuela</label>
+      <input type="text" id="f-institucion" placeholder="Nombre de la institución"/>
+    </div>
+    <div class="form-group">
+      <label>Teléfono / WhatsApp de la familia</label>
+      <input type="tel" id="f-telefono" placeholder="Ej: 3886123456 (sin 0 ni 15)"/>
+    </div>
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea id="f-obs" rows="2" placeholder="Notas adicionales..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-estudiante')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MODAL: TURNO ════════════ -->
+<div class="modal-backdrop" id="modal-turno">
+  <div class="modal">
+    <h2>Asignar Turno</h2>
+    <div class="form-group">
+      <label>Estudiante *</label>
+      <select id="t-estudiante"></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Día *</label>
+        <select id="t-dia">
+          <option value="0">Lunes</option>
+          <option value="1">Martes</option>
+          <option value="2">Miércoles</option>
+          <option value="3">Jueves</option>
+          <option value="4">Viernes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Modalidad</label>
+        <select id="t-modalidad">
+          <option value="">— heredar —</option>
+          <option>Consultorio</option>
+          <option>Escuela (itinerancia)</option>
+          <option>Domicilio</option>
+          <option>Virtual</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Hora inicio *</label>
+        <input type="time" id="t-inicio" value="08:00"/>
+      </div>
+      <div class="form-group">
+        <label>Hora fin *</label>
+        <input type="time" id="t-fin" value="09:00"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>¿Se repite semanalmente?</label>
+      <select id="t-recurrente">
+        <option value="true">Sí, todos los semanas</option>
+        <option value="false">No, solo esta semana</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-turno')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTurno()">Guardar turno</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MODAL: CONFIG PROFESIONAL ════════════ -->
+<div class="modal-backdrop" id="modal-config">
+  <div class="modal" style="max-width:420px">
+    <h2>⚙️ Mi perfil profesional</h2>
+    <p style="font-size:.82rem;color:var(--ink2);margin-bottom:1.2rem">Estos datos se usan para generar los mensajes de WhatsApp automáticamente.</p>
+    <div class="form-group">
+      <label>Tu nombre completo</label>
+      <input type="text" id="cfg-nombre" placeholder="Ej: Brian Beltran"/>
+    </div>
+    <div class="form-group">
+      <label>Alias de pago (Mercado Pago / CVU)</label>
+      <input type="text" id="cfg-alias" placeholder="Ej: brianbeltran.mp"/>
+    </div>
+    <div class="form-group">
+      <label>Monto por sesión ($)</label>
+      <input type="text" id="cfg-monto" placeholder="Ej: 14.000"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-config')">Cancelar</button>
+      <button class="btn btn-primary" id="cfg-save-btn" onclick="saveConfig()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MODAL: WHATSAPP ════════════ -->
+<div class="modal-backdrop" id="modal-whatsapp">
+  <div class="modal" style="max-width:520px">
+    <h2>💬 Mensaje para la familia</h2>
+    <div class="form-group">
+      <label>Vista previa del mensaje</label>
+      <textarea id="wa-mensaje" rows="8" style="font-size:.85rem;line-height:1.6;resize:vertical"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Número de WhatsApp</label>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <span style="font-size:.85rem;color:var(--ink2);white-space:nowrap">+549</span>
+        <input type="tel" id="wa-tel" placeholder="3886123456" style="flex:1"/>
+      </div>
+      <div style="font-size:.72rem;color:var(--ink2);margin-top:.3rem">Código de Argentina (+549) ya incluido. Solo ingresá el número sin 0 ni 15.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-whatsapp')">Cancelar</button>
+      <button class="btn btn-ghost" onclick="copyWaMessage()" id="wa-copy-btn">📋 Copiar mensaje</button>
+      <button class="btn btn-primary" style="background:#25D366" onclick="sendWhatsApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Abrir WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let students = JSON.parse(localStorage.getItem('ee_students') || '[]');
+let turnos   = JSON.parse(localStorage.getItem('ee_turnos')   || '[]');
+let editId   = null;
+let currentWeekOffset = 0;
+
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+const TIME_BLOCKS = [
+  '07:00','07:30','08:00','08:30','09:00','09:30',
+  '10:00','10:30','11:00','11:30','12:00','12:30',
+  '13:00','13:30','14:00','14:30','15:00','15:30',
+  '16:00','16:30','17:00','17:30','18:00','18:30','19:00'
+];
+
+function save() {
+  localStorage.setItem('ee_students', JSON.stringify(students));
+  localStorage.setItem('ee_turnos',   JSON.stringify(turnos));
+}
+
+// ══════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'agenda') renderWeek();
+  if (tab === 'disponibilidad') renderAvailability();
+  if (tab === 'estudiantes') renderStudents();
+}
+
+// ══════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════
+function openModal(type, id) {
+  if (type === 'add' || type === 'edit') {
+    editId = id || null;
+    document.getElementById('modal-estudiante-title').textContent = editId ? 'Editar Estudiante' : 'Agregar Estudiante';
+    if (editId) {
+      const s = students.find(x => x.id === editId);
+      document.getElementById('f-nombre').value = s.nombre || '';
+      document.getElementById('f-edad').value = s.edad || '';
+      document.getElementById('f-modalidad').value = s.modalidad || '';
+      document.getElementById('f-institucion').value = s.institucion || '';
+      document.getElementById('f-telefono').value = s.telefono || '';
+      document.getElementById('f-obs').value = s.obs || '';
+    } else {
+      ['f-nombre','f-edad','f-modalidad','f-institucion','f-telefono','f-obs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.tagName === 'SELECT') el.value = '';
+        else el.value = '';
+      });
+    }
+    document.getElementById('modal-estudiante').classList.add('open');
+  } else if (type === 'turno') {
+    const sel = document.getElementById('t-estudiante');
+    sel.innerHTML = students.length
+      ? students.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('')
+      : '<option value="">— Sin estudiantes —</option>';
+    document.getElementById('modal-turno').classList.add('open');
+  }
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(b => {
+  b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════
+//  STUDENTS CRUD
+// ══════════════════════════════════════
+function saveStudent() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  if (!nombre) { alert('El nombre es obligatorio.'); return; }
+  if (editId) {
+    const s = students.find(x => x.id === editId);
+    Object.assign(s, {
+      nombre,
+      edad: document.getElementById('f-edad').value,
+      modalidad: document.getElementById('f-modalidad').value,
+      institucion: document.getElementById('f-institucion').value.trim(),
+      telefono: document.getElementById('f-telefono').value.trim().replace(/\D/g,''),
+      obs: document.getElementById('f-obs').value.trim()
+    });
+  } else {
+    students.push({
+      id: 's_' + Date.now(),
+      nombre,
+      edad: document.getElementById('f-edad').value,
+      modalidad: document.getElementById('f-modalidad').value,
+      institucion: document.getElementById('f-institucion').value.trim(),
+      telefono: document.getElementById('f-telefono').value.trim().replace(/\D/g,''),
+      obs: document.getElementById('f-obs').value.trim()
+    });
+  }
+  save();
+  closeModal('modal-estudiante');
+  renderStudents();
+}
+
+function deleteStudent(id) {
+  if (!confirm('¿Eliminar estudiante y todos sus turnos?')) return;
+  students = students.filter(s => s.id !== id);
+  turnos   = turnos.filter(t => t.studentId !== id);
+  save();
+  renderStudents();
+}
+
+function renderStudents() {
+  const grid = document.getElementById('student-grid');
+  if (!students.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="big-icon">🎒</div>
+      <p>Todavía no agregaste estudiantes.<br>¡Comenzá agregando el primero!</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = students.map(s => {
+    const tCount = turnos.filter(t => t.studentId === s.id).length;
+    const badge = s.modalidad
+      ? `<span class="badge badge-green">${s.modalidad}</span>`
+      : '';
+    return `<div class="student-card">
+      <div class="student-name">${s.nombre}</div>
+      <div class="student-detail">
+        ${s.edad ? `Edad: ${s.edad} años<br>` : ''}
+        ${s.institucion ? `Institución: ${s.institucion}<br>` : ''}
+        ${badge}
+        <span class="badge badge-orange" style="margin-left:${s.modalidad ? '4px' : '0'}">${tCount} turno${tCount !== 1 ? 's' : ''}</span>
+      </div>
+      ${s.obs ? `<div class="student-detail" style="margin-top:.5rem;font-style:italic">${s.obs}</div>` : ''}
+      <div class="student-actions">
+        <button class="btn btn-secondary" style="font-size:.78rem;padding:.4rem .8rem" onclick="openModal('edit','${s.id}')">✏️ Editar</button>
+        <button class="btn btn-danger" style="font-size:.78rem;padding:.4rem .8rem" onclick="deleteStudent('${s.id}')">🗑 Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  TURNOS
+// ══════════════════════════════════════
+function saveTurno() {
+  const studentId = document.getElementById('t-estudiante').value;
+  const dia       = parseInt(document.getElementById('t-dia').value);
+  const inicio    = document.getElementById('t-inicio').value;
+  const fin       = document.getElementById('t-fin').value;
+  const recurrente = document.getElementById('t-recurrente').value === 'true';
+  const modalidad = document.getElementById('t-modalidad').value;
+
+  if (!studentId) { alert('Seleccioná un estudiante.'); return; }
+  if (!inicio || !fin || inicio >= fin) { alert('Verificá los horarios.'); return; }
+
+  const weekStart = getWeekStart(currentWeekOffset);
+  turnos.push({
+    id: 't_' + Date.now(),
+    studentId,
+    dia,
+    inicio,
+    fin,
+    recurrente,
+    modalidad,
+    weekKey: recurrente ? null : weekKey(weekStart)
+  });
+  save();
+  closeModal('modal-turno');
+  renderWeek();
+}
+
+function deleteTurno(id) {
+  if (!confirm('¿Eliminar este turno?')) return;
+  turnos = turnos.filter(t => t.id !== id);
+  save();
+  renderWeek();
+  renderAvailability();
+}
+
+// ══════════════════════════════════════
+//  WEEK HELPERS
+// ══════════════════════════════════════
+function getWeekStart(offset = 0) {
+  const d = new Date();
+  const day = d.getDay(); // 0=dom
+  const diff = (day === 0 ? -6 : 1 - day);
+  d.setDate(d.getDate() + diff + offset * 7);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function weekKey(date) {
+  return date.toISOString().slice(0,10);
+}
+
+function changeWeek(dir) {
+  currentWeekOffset += dir;
+  renderWeek();
+}
+
+function goToday() {
+  currentWeekOffset = 0;
+  renderWeek();
+}
+
+function getTurnosForDay(dayIndex, ws) {
+  const wk = weekKey(ws);
+  return turnos.filter(t => {
+    if (t.dia !== dayIndex) return false;
+    if (t.recurrente) return true;
+    return t.weekKey === wk;
+  }).sort((a,b) => a.inicio.localeCompare(b.inicio));
+}
+
+// ══════════════════════════════════════
+//  RENDER WEEK
+// ══════════════════════════════════════
+function renderWeek() {
+  const ws = getWeekStart(currentWeekOffset);
+  const we = new Date(ws); we.setDate(we.getDate() + 4);
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const fmt = d => d.toLocaleDateString('es-AR', { day:'2-digit', month:'short' });
+  document.getElementById('week-label').textContent =
+    `${fmt(ws)} – ${fmt(we)}`;
+
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = DAYS.map((day, i) => {
+    const dayDate = new Date(ws); dayDate.setDate(ws.getDate() + i);
+    const isToday = dayDate.getTime() === today.getTime();
+    const dayturnos = getTurnosForDay(i, ws);
+
+    const slots = dayturnos.map(t => {
+      const s = students.find(x => x.id === t.studentId);
+      const name = s ? s.nombre : '(eliminado)';
+      const mod = t.modalidad || (s ? s.modalidad : '');
+      const hasWa = s && s.telefono;
+      // fecha exacta del turno esta semana
+      const slotDate = new Date(ws); slotDate.setDate(ws.getDate() + i);
+      const fechaStr = slotDate.toLocaleDateString('es-AR', {weekday:'long', day:'2-digit', month:'long'});
+      return `<div class="slot">
+        <div class="slot-time">${t.inicio} – ${t.fin}</div>
+        <div class="slot-name">${name}</div>
+        ${mod ? `<div class="slot-loc">${mod}</div>` : ''}
+        <div class="slot-actions">
+          <button class="btn-wa" onclick="openWhatsApp('${t.id}','${fechaStr}')" title="Enviar turno por WhatsApp">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp
+          </button>
+          <button class="btn-del-slot" onclick="deleteTurno('${t.id}')" title="Eliminar turno">🗑</button>
+        </div>
+      </div>`;
+    }).join('') || `<div style="padding:.5rem;font-size:.75rem;color:var(--ink2)">Sin sesiones</div>`;
+
+    return `<div class="day-col">
+      <div class="day-header ${isToday ? 'today' : ''}">${day} ${fmt(dayDate)}</div>
+      <div class="day-slots">${slots}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  RENDER AVAILABILITY
+// ══════════════════════════════════════
+function renderAvailability() {
+  const ws = getWeekStart(0); // always current week base
+  let totalTurnos = 0;
+  let totalHoras = 0;
+  const studentSet = new Set();
+
+  const avail = document.getElementById('avail-grid');
+  avail.innerHTML = DAYS.map((day, i) => {
+    const dayturnos = getTurnosForDay(i, ws)
+      .sort((a,b) => a.inicio.localeCompare(b.inicio));
+    totalTurnos += dayturnos.length;
+    dayturnos.forEach(t => {
+      studentSet.add(t.studentId);
+      const [h1,m1] = t.inicio.split(':').map(Number);
+      const [h2,m2] = t.fin.split(':').map(Number);
+      totalHoras += (h2*60+m2 - h1*60-m1) / 60;
+    });
+
+    const busyBlocks = new Set();
+    dayturnos.forEach(t => {
+      TIME_BLOCKS.forEach(bl => {
+        if (bl >= t.inicio && bl < t.fin) busyBlocks.add(bl);
+      });
+    });
+
+    const slots = TIME_BLOCKS.map(bl => {
+      if (busyBlocks.has(bl)) {
+        const t = dayturnos.find(tt => bl >= tt.inicio && bl < tt.fin);
+        const s = t ? students.find(x => x.id === t.studentId) : null;
+        return `<div class="avail-slot busy">
+          <span>${bl}</span>
+          <span style="font-size:.7rem">${s ? s.nombre.split(' ')[0] : '—'}</span>
+        </div>`;
+      }
+      return `<div class="avail-slot free"><span>${bl}</span><span>libre</span></div>`;
+    }).join('');
+
+    return `<div class="avail-day">
+      <div class="avail-day-header">${day}</div>
+      <div class="avail-body">${slots}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('summary-bar').innerHTML = `
+    <div class="summary-item">
+      <div class="summary-num">${students.length}</div>
+      <div class="summary-label">Estudiantes</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num">${totalTurnos}</div>
+      <div class="summary-label">Sesiones / semana</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num">${totalHoras.toFixed(1)}h</div>
+      <div class="summary-label">Horas semanales</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num">${studentSet.size}</div>
+      <div class="summary-label">Estudiantes activos</div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════
+//  CONFIG PROFESIONAL
+// ══════════════════════════════════════
+let config = JSON.parse(localStorage.getItem('ee_config') || '{}');
+
+function saveConfig() {
+  config.nombre  = document.getElementById('cfg-nombre').value.trim();
+  config.alias   = document.getElementById('cfg-alias').value.trim();
+  config.monto   = document.getElementById('cfg-monto').value.trim();
+  localStorage.setItem('ee_config', JSON.stringify(config));
+  closeModal('modal-config');
+  // feedback
+  const btn = document.getElementById('cfg-save-btn');
+  btn.textContent = '✅ Guardado';
+  setTimeout(() => btn.textContent = 'Guardar', 1800);
+}
+
+function openConfig() {
+  document.getElementById('cfg-nombre').value = config.nombre || '';
+  document.getElementById('cfg-alias').value  = config.alias  || '';
+  document.getElementById('cfg-monto').value  = config.monto  || '';
+  document.getElementById('modal-config').classList.add('open');
+}
+
+// ══════════════════════════════════════
+//  WHATSAPP
+// ══════════════════════════════════════
+let _waTurnoId = null;
+
+function calcHoras(inicio, fin) {
+  const [h1,m1] = inicio.split(':').map(Number);
+  const [h2,m2] = fin.split(':').map(Number);
+  const mins = (h2*60+m2) - (h1*60+m1);
+  const hs = mins / 60;
+  return hs === 1 ? '1 hora' : `${hs} hs`;
+}
+
+function openWhatsApp(turnoId, fechaStr) {
+  _waTurnoId = turnoId;
+  const t = turnos.find(x => x.id === turnoId);
+  const s = t ? students.find(x => x.id === t.studentId) : null;
+  if (!t || !s) return;
+
+  const mod  = t.modalidad || s.modalidad || 'TRABAJO PEDAGÓGICO';
+  const dia  = capitalizar(fechaStr.split(',')[0]);  // "Lunes"
+  const fecha= fechaStr.split(',')[1]?.trim() || fechaStr; // "24 de marzo"
+  const duracion = calcHoras(t.inicio, t.fin);
+  const monto = config.monto ? `$ ${config.monto}` : '$ ——';
+  const alias = config.alias || '——';
+  const firma = config.nombre || 'Brian Beltran';
+
+  // Línea detalle estilo: "Lunes-TRABAJO PEDAGÓGICO 24/03: $ 14.000"
+  const slotDate = new Date(); // recuperamos la fecha real del slot
+  const t2 = turnos.find(x => x.id === turnoId);
+  const ws  = getWeekStart(currentWeekOffset);
+  const slotD = new Date(ws); slotD.setDate(ws.getDate() + (t2 ? t2.dia : 0));
+  const ddmm = `${String(slotD.getDate()).padStart(2,'0')}/${String(slotD.getMonth()+1).padStart(2,'0')}`;
+
+  const lineaDetalle = `${dia}-${mod.toUpperCase()} ${ddmm}: ${monto}`;
+
+  const msg =
+`${capitalizar(s.nombre.split(' ')[0])} te comparto lo solicitado ☺️
+
+${lineaDetalle}
+
+ 1 Día trabajo pedagógico ${duracion}. ${monto}
+
+Alias: ${alias}
+
+Muchas Gracias 😊 ${firma}`;
+
+  document.getElementById('wa-mensaje').value = msg;
+  document.getElementById('wa-tel').value = s.telefono || '';
+  document.getElementById('modal-whatsapp').classList.add('open');
+}
+
+function capitalizar(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+}
+
+function sendWhatsApp() {
+  const msg = document.getElementById('wa-mensaje').value.trim();
+  const tel = document.getElementById('wa-tel').value.trim().replace(/\D/g,'');
+  if (!tel) { alert('Ingresá el número de WhatsApp de la familia.'); return; }
+  const numero = '549' + tel;
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function copyWaMessage() {
+  const msg = document.getElementById('wa-mensaje').value;
+  navigator.clipboard.writeText(msg).then(() => {
+    const btn = document.getElementById('wa-copy-btn');
+    btn.textContent = '✅ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar mensaje', 2000);
+  });
+}
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+renderStudents();
+renderWeek();
+</script>
+</body>
+</html>
