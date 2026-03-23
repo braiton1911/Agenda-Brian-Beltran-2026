@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generador de Turnos — Educación Especial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #0f1410;
+      --surface:  #171d18;
+      --surface2: #1e2720;
+      --border:   #2a3a2d;
+      --green:    #4caf72;
+      --green-dim:#2a5c3a;
+      --green-glow: rgba(76,175,114,.15);
+      --wa:       #25D366;
+      --text:     #e8f0e9;
+      --text2:    #7a9c80;
+      --accent:   #a8e6bb;
+      --radius:   14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    /* grain overlay */
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:0; opacity:.4;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index:1;
+      padding: 2.5rem 1.5rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-badge {
+      display: inline-block;
+      background: var(--green-glow);
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .3rem .9rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    header h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    header h1 em { font-style: italic; color: var(--green); }
+    header p {
+      color: var(--text2);
+      font-size: .88rem;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      position: relative; z-index:1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      transition: border-color .2s;
+    }
+    .card:focus-within { border-color: var(--green-dim); }
+
+    .card-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.05rem;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .card-title span { font-size: 1rem; }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: .9rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: .4rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: .7rem 1rem;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: .92rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-glow);
+    }
+    input::placeholder { color: var(--text2); opacity: .6; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    @media(max-width:480px){ .form-row { grid-template-columns: 1fr; } }
+
+    /* select arrow */
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234caf72' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+    select option { background: var(--surface2); }
+
+    /* ── TIPO ACTIVIDAD CHIPS ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: .9rem;
+    }
+    .chip {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: .35rem .85rem;
+      font-size: .78rem;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+    .chip.active {
+      background: var(--green-glow);
+      border-color: var(--green);
+      color: var(--green);
+      font-weight: 600;
+    }
+    .chip:hover:not(.active) { border-color: var(--text2); color: var(--text); }
+
+    /* ── LISTA DE TURNOS ── */
+    .turnos-list {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+    .turno-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .8rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .5rem;
+      animation: fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+    .turno-info { flex:1; }
+    .turno-nombre { font-weight: 600; font-size: .9rem; color: var(--accent); }
+    .turno-detalle { font-size: .78rem; color: var(--text2); margin-top: .15rem; }
+    .turno-tipo {
+      font-size: .68rem;
+      background: var(--green-glow);
+      color: var(--green);
+      border: 1px solid var(--green-dim);
+      padding: .2rem .6rem;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .btn-del {
+      background: none;
+      border: none;
+      color: #c0392b;
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: .5;
+      transition: opacity .15s;
+      padding: .2rem .4rem;
+      border-radius: 6px;
+    }
+    .btn-del:hover { opacity:1; background: rgba(192,57,43,.1); }
+
+    /* ── BOTONES PRINCIPALES ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .75rem 1.4rem;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      width: 100%;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-add {
+      background: var(--surface2);
+      border: 1.5px dashed var(--border);
+      color: var(--text2);
+      margin-top: .8rem;
+    }
+    .btn-add:hover { border-color: var(--green); color: var(--green); }
+    .btn-generate {
+      background: var(--green);
+      color: #0f1410;
+      font-size: 1rem;
+      letter-spacing: .02em;
+      box-shadow: 0 4px 20px rgba(76,175,114,.3);
+    }
+    .btn-generate:hover { filter: brightness(1.1); box-shadow: 0 6px 28px rgba(76,175,114,.45); }
+    .btn-wa {
+      background: var(--wa);
+      color: #fff;
+      font-size: .92rem;
+      box-shadow: 0 4px 16px rgba(37,211,102,.3);
+    }
+    .btn-wa:hover { filter: brightness(1.08); }
+    .btn-copy {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-size: .88rem;
+    }
+    .btn-copy:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── RESULTADO ── */
+    #resultado { display: none; }
+    .msg-preview {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem;
+      font-size: .88rem;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 1rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    .btn-row { display: flex; gap: .75rem; }
+    .btn-row .btn { flex: 1; }
+
+    /* ── MONTO HINT ── */
+    .monto-total {
+      text-align: right;
+      font-size: .8rem;
+      color: var(--green);
+      font-weight: 600;
+      margin-top: .4rem;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      color: var(--text2);
+      font-size: .82rem;
+      padding: 1rem;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--green);
+      color: #0f1410;
+      font-weight: 600;
+      font-size: .85rem;
+      padding: .7rem 1.4rem;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(76,175,114,.4);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: .4rem 0 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">🌿 Educación Especial</div>
+  <h1>Generador de <em>Turnos</em></h1>
+  <p>Cargá el turno y enviá el recordatorio por WhatsApp</p>
+</header>
+
+<div class="container">
+
+  <!-- ══ MIS DATOS ══ -->
+  <div class="card">
+    <div class="card-title"><span>👩‍🏫</span> Mis datos</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tu nombre completo</label>
+        <input type="text" id="prof-nombre" placeholder="Brian Beltran"/>
+      </div>
+      <div class="form-group">
+        <label>Tu WhatsApp (para el recordatorio)</label>
+        <input type="tel" id="prof-tel" placeholder="3886123456"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Alias de pago</label>
+        <input type="text" id="prof-alias" placeholder="brianbeltran.mp"/>
+      </div>
+      <div class="form-group">
+        <label>Monto por sesión ($)</label>
+        <input type="text" id="prof-monto" placeholder="14.000"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DATOS DEL TURNO ══ -->
+  <div class="card">
+    <div class="card-title"><span>👨‍👩‍👧</span> Datos del turno</div>
+
+    <div class="form-group">
+      <label>Nombre de la familia / mamá / papá</label>
+      <input type="text" id="familia" placeholder="Ej: Victor y Meliza"/>
+    </div>
+    <div class="form-group">
+      <label>Nombre del alumno/a</label>
+      <input type="text" id="alumno" placeholder="Ej: Ramiro"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Institución / Escuela</label>
+        <input type="text" id="institucion" placeholder="Opcional"/>
+      </div>
+      <div class="form-group">
+        <label>WhatsApp de la familia</label>
+        <input type="tel" id="fam-tel" placeholder="3886000000"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TURNO ══ -->
+  <div class="card">
+    <div class="card-title"><span>📅</span> Datos del turno</div>
+
+    <label style="margin-bottom:.6rem">Tipo de actividad</label>
+    <div class="chips" id="chips">
+      <div class="chip active" onclick="selectChip(this,'TRABAJO PEDAGÓGICO EN AULA')">Trabajo pedagógico en aula</div>
+      <div class="chip" onclick="selectChip(this,'TRABAJO PEDAGÓGICO EN CONSULTORIO')">Trabajo pedagógico en consultorio</div>
+      <div class="chip" onclick="selectChip(this,'FIRMA ACTA ACUERDO')">Firma acta acuerdo</div>
+      <div class="chip" onclick="selectChip(this,'EVALUACIÓN PEDAGÓGICA')">Evaluación pedagógica</div>
+      <div class="chip" onclick="selectChip(this,'REUNIÓN CON FAMILIA')">Reunión con familia</div>
+      <div class="chip" onclick="selectChip(this,'OTRO')">Otro</div>
+    </div>
+    <div class="form-group" id="otro-grupo" style="display:none">
+      <label>Especificá la actividad</label>
+      <input type="text" id="otro-texto" placeholder="Escribí el tipo de actividad"/>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Día de la semana</label>
+        <select id="dia-semana">
+          <option>Lunes</option>
+          <option>Martes</option>
+          <option>Miércoles</option>
+          <option>Jueves</option>
+          <option>Viernes</option>
+          <option>Sábado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="fecha"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Hora inicio</label>
+        <input type="time" id="hora-inicio" value="08:00"/>
+      </div>
+      <div class="form-group">
+        <label>Hora fin</label>
+        <input type="time" id="hora-fin" value="09:00"/>
+      </div>
+    </div>
+
+    <button class="btn btn-add" onclick="agregarTurno()">＋ Agregar otro día / turno</button>
+  </div>
+
+  <!-- ══ TURNOS AGREGADOS ══ -->
+  <div id="extra-turnos-card" class="card" style="display:none">
+    <div class="card-title"><span>🗓</span> Turnos cargados</div>
+    <div class="turnos-list" id="turnos-list"></div>
+    <div class="monto-total" id="monto-total"></div>
+  </div>
+
+  <!-- ══ GENERAR ══ -->
+  <button class="btn btn-generate" onclick="generar()">
+    ✦ Generar mensaje de turno
+  </button>
+
+  <!-- ══ RESULTADO ══ -->
+  <div class="card" id="resultado">
+    <div class="card-title"><span>💬</span> Mensaje generado</div>
+    <div class="msg-preview" id="msg-preview"></div>
+    <div class="btn-row">
+      <button class="btn btn-copy" onclick="copiarMensaje()">📋 Copiar</button>
+      <button class="btn btn-wa" onclick="enviarWaFamilia()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Enviar a la familia
+      </button>
+    </div>
+
+    <hr class="divider" style="margin-top:1rem"/>
+
+    <!-- Recordatorio para vos -->
+    <div class="card-title" style="margin-top:.5rem"><span>🔔</span> Recordatorio para mí</div>
+    <div class="msg-preview" id="msg-recordatorio" style="font-size:.82rem; border-color: var(--green-dim);"></div>
+    <button class="btn btn-wa" style="background:var(--green-dim);border:1.5px solid var(--green);color:var(--green)" onclick="enviarWaPropio()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviarme el recordatorio a mí
+    </button>
+  </div>
+
+</div><!-- /container -->
+
+<div class="toast" id="toast">✅ ¡Copiado!</div>
+
+<script>
+// ══════════════════════════════
+//  PERSIST DATOS PROFESIONAL
+// ══════════════════════════════
+const CAMPOS_PROF = ['prof-nombre','prof-tel','prof-alias','prof-monto'];
+CAMPOS_PROF.forEach(id => {
+  const el = document.getElementById(id);
+  const saved = localStorage.getItem('gen_' + id);
+  if (saved) el.value = saved;
+  el.addEventListener('input', () => localStorage.setItem('gen_' + id, el.value));
+});
+
+// Fecha por defecto = hoy
+const hoy = new Date();
+document.getElementById('fecha').value = hoy.toISOString().slice(0,10);
+// Día por defecto según fecha
+const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const selDia = document.getElementById('dia-semana');
+selDia.value = dias[hoy.getDay()] || 'Lunes';
+document.getElementById('fecha').addEventListener('change', function(){
+  const d = new Date(this.value + 'T12:00:00');
+  selDia.value = dias[d.getDay()];
+});
+
+// ══════════════════════════════
+//  CHIPS
+// ══════════════════════════════
+let tipoActivo = 'TRABAJO PEDAGÓGICO EN AULA';
+function selectChip(el, tipo) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  tipoActivo = tipo;
+  document.getElementById('otro-grupo').style.display = tipo === 'OTRO' ? 'block' : 'none';
+}
+
+// ══════════════════════════════
+//  TURNOS EXTRA
+// ══════════════════════════════
+let turnosExtra = [];
+
+function agregarTurno() {
+  const tipo   = tipoActivo === 'OTRO'
+    ? (document.getElementById('otro-texto').value.trim().toUpperCase() || 'ACTIVIDAD')
+    : tipoActivo;
+  const dia    = document.getElementById('dia-semana').value;
+  const fecha  = document.getElementById('fecha').value;
+  const inicio = document.getElementById('hora-inicio').value;
+  const fin    = document.getElementById('hora-fin').value;
+  if (!fecha || !inicio || !fin || inicio >= fin) {
+    showToast('⚠️ Verificá fecha y horarios', '#e67e22'); return;
+  }
+  turnosExtra.push({ tipo, dia, fecha, inicio, fin });
+  renderTurnos();
+  // Avanzar fecha un día
+  const d = new Date(fecha + 'T12:00:00');
+  d.setDate(d.getDate() + 1);
+  document.getElementById('fecha').value = d.toISOString().slice(0,10);
+  selDia.value = dias[d.getDay()];
+  showToast('✅ Turno agregado');
+}
+
+function renderTurnos() {
+  const list = document.getElementById('turnos-list');
+  const card = document.getElementById('extra-turnos-card');
+  if (!turnosExtra.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  list.innerHTML = turnosExtra.map((t,i) => `
+    <div class="turno-item">
+      <div class="turno-info">
+        <div class="turno-nombre">${t.dia} ${formatFecha(t.fecha)}</div>
+        <div class="turno-detalle">${t.inicio} – ${t.fin} hs</div>
+      </div>
+      <span class="turno-tipo">${t.tipo}</span>
+      <button class="btn-del" onclick="eliminarTurno(${i})">✕</button>
+    </div>`).join('');
+  actualizarMonto();
+}
+
+function eliminarTurno(i) {
+  turnosExtra.splice(i,1);
+  renderTurnos();
+}
+
+function actualizarMonto() {
+  const monto = parseMonto(document.getElementById('prof-monto').value);
+  if (!monto || !turnosExtra.length) {
+    document.getElementById('monto-total').textContent = '';
+    return;
+  }
+  const total = monto * turnosExtra.length;
+  document.getElementById('monto-total').textContent =
+    `Total estimado: $${formatMonto(total)} (${turnosExtra.length} turno${turnosExtra.length>1?'s':''})`;
+}
+
+// ══════════════════════════════
+//  GENERAR MENSAJE
+// ══════════════════════════════
+function generar() {
+  const familia  = document.getElementById('familia').value.trim();
+  const alumno   = document.getElementById('alumno').value.trim();
+  const profNombre = document.getElementById('prof-nombre').value.trim() || 'Brian Beltran';
+  const alias    = document.getElementById('prof-alias').value.trim() || '——';
+  const montoVal = document.getElementById('prof-monto').value.trim();
+  const inst     = document.getElementById('institucion').value.trim();
+
+  if (!familia) { showToast('⚠️ Ingresá el nombre de la familia', '#e67e22'); return; }
+  if (!alumno)  { showToast('⚠️ Ingresá el nombre del alumno/a', '#e67e22'); return; }
+
+  const tipo = tipoActivo === 'OTRO'
+    ? (document.getElementById('otro-texto').value.trim().toUpperCase() || 'ACTIVIDAD')
+    : tipoActivo;
+
+  const dia    = document.getElementById('dia-semana').value;
+  const fecha  = document.getElementById('fecha').value;
+  const inicio = document.getElementById('hora-inicio').value;
+  const fin    = document.getElementById('hora-fin').value;
+
+  if (!fecha) { showToast('⚠️ Seleccioná una fecha', '#e67e22'); return; }
+
+  // Armar lista de todos los turnos (principal + extras)
+  const principal = { tipo, dia, fecha, inicio, fin };
+  const todos = [principal, ...turnosExtra];
+  const monto = parseMonto(montoVal);
+  const montoStr = monto ? `$ ${formatMonto(monto)}` : '$ ——';
+  const totalMonto = monto ? monto * todos.length : null;
+  const totalStr = totalMonto ? `$ ${formatMonto(totalMonto)}` : '$ ——';
+
+  // Calcular horas de la sesión principal
+  const durHs = calcHoras(inicio, fin);
+
+  // Líneas de detalle
+  const lineas = todos.map(t => {
+    const dd = formatDDMM(t.fecha);
+    return `${t.dia}-${t.tipo} ${dd}: ${montoStr}`;
+  }).join('\n');
+
+  const cantDias = todos.length;
+  const resumen = `${cantDias} día${cantDias>1?'s':''} trabajo pedagógico ${durHs}/día. ${totalStr}`;
+  const instLinea = inst ? `\n🏫 Institución: ${inst}` : '';
+
+  const msg =
+`${familia} te comparto lo solicitado ☺️
+
+${lineas}
+
+ ${resumen}${instLinea}
+
+💰 *Total a abonar: ${totalStr}*
+
+Alias: ${alias}
+Brian Fernando David Beltran — MERCADO PAGO
+
+Muchas Gracias 😊 ${profNombre}`;
+
+  // Recordatorio para el profesional
+  const msgRec =
+`🔔 RECORDATORIO DE TURNO
+
+👦 Alumno/a: ${alumno}
+👨‍👩‍👧 Familia: ${familia}
+📅 ${dia} ${formatFecha(fecha)}
+🕐 ${inicio} – ${fin} hs
+📋 ${tipo}${inst ? '\n🏫 ' + inst : ''}
+
+✦ ${profNombre}`;
+
+  document.getElementById('msg-preview').textContent = msg;
+  document.getElementById('msg-recordatorio').textContent = msgRec;
+  document.getElementById('resultado').style.display = 'block';
+  document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ══════════════════════════════
+//  ENVIAR WA
+// ══════════════════════════════
+function enviarWaFamilia() {
+  const msg = document.getElementById('msg-preview').textContent;
+  const tel = document.getElementById('fam-tel').value.trim().replace(/\D/g,'');
+  if (!tel) { showToast('⚠️ Agregá el WhatsApp de la familia', '#e67e22'); return; }
+  abrirWa('549' + tel, msg);
+}
+
+function enviarWaPropio() {
+  const msg = document.getElementById('msg-recordatorio').textContent;
+  const tel = document.getElementById('prof-tel').value.trim().replace(/\D/g,'');
+  if (!tel) { showToast('⚠️ Ingresá tu número de WhatsApp arriba', '#e67e22'); return; }
+  abrirWa('549' + tel, msg);
+}
+
+function abrirWa(numero, msg) {
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function copiarMensaje() {
+  const msg = document.getElementById('msg-preview').textContent;
+  navigator.clipboard.writeText(msg).then(() => showToast('✅ ¡Copiado!'));
+}
+
+// ══════════════════════════════
+//  UTILS
+// ══════════════════════════════
+function formatFecha(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('es-AR', { day:'2-digit', month:'long' });
+}
+function formatDDMM(iso) {
+  if (!iso) return '';
+  const [,m,d] = iso.split('-');
+  return `${d}/${m}`;
+}
+function calcHoras(inicio, fin) {
+  const [h1,m1] = inicio.split(':').map(Number);
+  const [h2,m2] = fin.split(':').map(Number);
+  const mins = (h2*60+m2)-(h1*60+m1);
+  const hs = mins/60;
+  return hs === 1 ? '1 hs' : Number.isInteger(hs) ? `${hs} hs` : `${hs.toFixed(1)} hs`;
+}
+function parseMonto(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/\./g,'').replace(',','.')) || 0;
+}
+function formatMonto(n) {
+  return n.toLocaleString('es-AR');
+}
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--green)';
+  t.style.color = color ? '#fff' : '#0f1410';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
